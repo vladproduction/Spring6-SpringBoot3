@@ -16,7 +16,7 @@ public class SpringBootFirstAppApplication {
 		var context = SpringApplication.run(SpringBootFirstAppApplication.class, args);
 
 		HelloWorld helloWorld = context.getBean(HelloWorld.class);
-		System.out.println(helloWorld.helloWorld()); //Hello World!
+		System.out.println(helloWorld.helloWorld()); //Hello World!!!
 
 		String[] beanDefinitionNames = context.getBeanDefinitionNames();
 		for (String beanDefinitionName : beanDefinitionNames) {
