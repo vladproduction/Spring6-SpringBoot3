@@ -1,0 +1,6 @@
+http://localhost:8080/actuator/metrics
+
+# examples:
+#http://localhost:8080/actuator/metrics/disk.total
+#http://localhost:8080/actuator/metrics/jvm.threads.states
+#http://localhost:8080/actuator/metrics/jvm.info

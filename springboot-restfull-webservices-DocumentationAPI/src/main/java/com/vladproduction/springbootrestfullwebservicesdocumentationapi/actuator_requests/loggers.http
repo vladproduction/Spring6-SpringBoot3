@@ -1,0 +1,6 @@
+http://localhost:8080/actuator/loggers
+
+# how to change logs level for package:
+#need to make POST request to endpoint with defined package name and in body create json({"configuredLevel": "DEBUG"})
+#http://localhost:8080/actuator/loggers/com.vladproduction // INFO --> DEBUG
+#http://localhost:8080/actuator/loggers/_org.springframework // INFO --> DEBUG
