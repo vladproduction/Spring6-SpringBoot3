@@ -1,0 +1,275 @@
+1) building image from Dockerfile:
+start docker first (UP and Run Docker)
+in terminal print command:
+/*docker build -t sb-docker-demo .
+
+2)check if has been built:
+docker images
+REPOSITORY       TAG       IMAGE ID       CREATED          SIZE
+/*sb-docker-demo   latest    20b2a4dea102   41 seconds ago   428MB
+
+3) making docker image with specified tag name 0.1.RELEASE:
+/*docker build -t sb-docker-demo:0.1.RELEASE .
+ (after that one more image has been created at docker desktop)
+REPOSITORY       TAG           IMAGE ID       CREATED         SIZE
+sb-docker-demo   0.1.RELEASE   20b2a4dea102   4 minutes ago   428MB
+sb-docker-demo   latest        20b2a4dea102   4 minutes ago   428MB
+
+4) mapping (localhost:container) ports and run application from image:
+/*docker run -p 8084:8080 sb-docker-demo
+app started
+
+5) kill process
+/*'ctrl + c'
+app stopped
+
+6) check if docker container is running or not:
+/*docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+7)check if we can run app from host 8081 (not on default:8084)
+/*docker run -p 8081:8080 sb-docker-demo
+app started
+
+8) kill process
+/*'ctrl + c'
+app stopped
+but docker container still work
+
+9) how to run docker container in a detached mode (from background):
+/*docker run -p 8081:8080 -d springboot-docker-demo
+6e237f99e27d07d9b8a0e4c34e9817eae86f2c25054f9e5255a79013d0fc36ea
+
+10) how to see logs:
+/*docker logs -f 6e237
+
+11) kill process
+/*'ctrl + c'
+app stopped
+but docker container still work
+
+12) check if docker container is running:
+/*docker ps
+CONTAINER ID   IMAGE            COMMAND                  CREATED         STATUS         PORTS                    NAMES
+6e237f99e27d   sb-docker-demo   "java -jar sb-docker…"   3 minutes ago   Up 3 minutes   0.0.0.0:8081->8080/tcp   happy_spence
+
+13) to stop docker container:
+/*docker stop 6e237
+(and now no container work):
+/*docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+14) how to push image from local system to docker-hub (remote):
+-register first on dockerhub;
+
+-in cmd print command: '
+/*docker login (id + password) for docker-hub
+
+-and need to create repository on docker-hub:
+/*docker tag springboot-docker-demo vladbogdadocker/sb-docker-demo:0.1.RELEASE
+
+-check for images in docker hub:
+/*docker images
+REPOSITORY                       TAG           IMAGE ID       CREATED          SIZE
+sb-docker-demo                   0.1.RELEASE   20b2a4dea102   56 minutes ago   428MB
+sb-docker-demo                   latest        20b2a4dea102   56 minutes ago   428MB
+vladbogdadocker/sb-docker-demo   0.1.RELEASE   20b2a4dea102   56 minutes ago   428MB
+
+-push local into remote docker-hub:
+/*docker push vladbogdadocker/sb-docker-demo:0.1.RELEASE
+The push refers to repository [docker.io/vladbogdadocker/sb-docker-demo]
+0dbc74e5dd2b: Pushed
+14a7ea40836e: Pushed
+ec8efff3a93f: Mounted from library/eclipse-temurin
+13a95f9bb8e4: Mounted from library/eclipse-temurin
+cccf112ecd19: Mounted from library/eclipse-temurin
+72e30882eaca: Mounted from library/eclipse-temurin
+0b9c994b0484: Mounted from library/eclipse-temurin
+0.1.RELEASE: digest: sha256:e8778725a2f816368b9e9424aeed167252353f78f4a227e1f845da9e7be5ff83 size: 1786
+
+
+15) how to pull existing image from docker-hub:
+/*docker pull vladbogdadocker/sb-docker-demo:0.1.RELEASE
+0.1.RELEASE: Pulling from vladbogdadocker/sb-docker-demo
+Digest: sha256:e8778725a2f816368b9e9424aeed167252353f78f4a227e1f845da9e7be5ff83
+Status: Image is up to date for vladbogdadocker/sb-docker-demo:0.1.RELEASE
+docker.io/vladbogdadocker/sb-docker-demo:0.1.RELEASE
+
+What's Next?
+  View summary of image vulnerabilities and recommendations → docker scout quickview vladbogdadocker/sb-docker-demo:0.1.RELEASE
+
+
+
+16) check of what images we have locally:
+/*docker images
+REPOSITORY                       TAG           IMAGE ID       CREATED             SIZE
+sb-docker-demo                   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+sb-docker-demo                   latest        20b2a4dea102   About an hour ago   428MB
+vladbogdadocker/sb-docker-demo   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+
+
+
+17) download from hub new image 'mysql:latest'
+/*docker pull mysql:latest
+latest: Pulling from library/mysql
+07bc88e18c4a: Pull complete
+1a9c1668bf49: Pull complete
+1021dda8eecf: Pull complete
+fb61b56acac1: Pull complete
+0bca83908a5b: Pull complete
+165e8b3d37ca: Pull complete
+3e1b086f1295: Pull complete
+dba651668484: Pull complete
+ed90f5355e12: Pull complete
+0412f59ab2b5: Pull complete
+Digest: sha256:aa021e164da6aacbefc59ed0b933427e4835636be380f3b6523f4a6c9564e1f0
+Status: Downloaded newer image for mysql:latest
+docker.io/library/mysql:latest
+
+What's Next?
+  View summary of image vulnerabilities and recommendations → docker scout quickview mysql:latest
+
+
+
+18) and check now what images we have:
+/*docker images
+REPOSITORY                       TAG           IMAGE ID       CREATED             SIZE
+sb-docker-demo                   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+sb-docker-demo                   latest        20b2a4dea102   About an hour ago   428MB
+vladbogdadocker/sb-docker-demo   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+mysql                            latest        fcd86ff8ce8c   6 weeks ago         578MB
+
+
+
+19) download one more image 'mariadb':
+/*docker pull mariadb
+Using default tag: latest
+latest: Pulling from library/mariadb
+00d679a470c4: Pull complete
+381fb89d9026: Pull complete
+fd042176e576: Pull complete
+80b21b96f832: Pull complete
+310e39ef046d: Pull complete
+8e4136144025: Pull complete
+c187e9145a80: Pull complete
+7b8cfc1ced45: Pull complete
+Digest: sha256:396146c0a2e703ddebcf51f26abb28bf5590991d1d830c35c1d802034d140352
+Status: Downloaded newer image for mariadb:latest
+docker.io/library/mariadb:latest
+
+What's Next?
+  View summary of image vulnerabilities and recommendations → docker scout quickview mariadb
+
+
+
+20) check result of downloading:
+/*docker images
+REPOSITORY                       TAG           IMAGE ID       CREATED             SIZE
+sb-docker-demo                   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+sb-docker-demo                   latest        20b2a4dea102   About an hour ago   428MB
+vladbogdadocker/sb-docker-demo   0.1.RELEASE   20b2a4dea102   About an hour ago   428MB
+mariadb                          latest        d08fd2bbace4   6 days ago          406MB
+mysql                            latest        fcd86ff8ce8c   6 weeks ago         578MB
+
+
+
+21) how to run one of the image that has been downloaded for example 'mysql:latest' in a docker container:
+/*docker run -p 3307:3306 --name localhost -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=employee_db -e MYSQL_PASSWORD=11111111 -d mysql:latest
+d19807d2ca0ad58871699dd1b35546ccc7dad2cb1713ee19842fd406b25a4fbb
+
+
+21) to check logs:
+/*docker logs -f localhost
+2024-06-17 09:49:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+2024-06-17 09:49:39+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2024-06-17 09:49:39+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+2024-06-17 09:49:39+00:00 [Warn] [Entrypoint]: MYSQL_PASSWORD specified, but missing MYSQL_USER; MYSQL_PASSWORD will be ignored
+2024-06-17 09:49:39+00:00 [Note] [Entrypoint]: Initializing database files
+2024-06-17T09:49:39.976797Z 0 [System] [MY-015017] [Server] MySQL Server Initialization - start.
+2024-06-17T09:49:39.977738Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.4.0) initializing of server in progress as process 82
+2024-06-17T09:49:39.987855Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2024-06-17T09:49:40.118344Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2024-06-17T09:49:41.238777Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+2024-06-17T09:49:42.813248Z 0 [System] [MY-015018] [Server] MySQL Server Initialization - end.
+2024-06-17 09:49:42+00:00 [Note] [Entrypoint]: Database files initialized
+2024-06-17 09:49:42+00:00 [Note] [Entrypoint]: Starting temporary server
+2024-06-17T09:49:42.979804Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2024-06-17T09:49:43.167062Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 127
+2024-06-17T09:49:43.176955Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2024-06-17T09:49:43.317495Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2024-06-17T09:49:43.531670Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2024-06-17T09:49:43.531701Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2024-06-17T09:49:43.534296Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+2024-06-17T09:49:43.550940Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server - GPL.
+2024-06-17 09:49:43+00:00 [Note] [Entrypoint]: Temporary server started.
+'/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+2024-06-17T09:49:43.804535Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Socket: /var/run/mysqld/mysqlx.sock
+Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+Warning: Unable to load '/usr/share/zoneinfo/leapseconds' as time zone. Skipping it.
+Warning: Unable to load '/usr/share/zoneinfo/tzdata.zi' as time zone. Skipping it.
+Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+2024-06-17 09:49:45+00:00 [Note] [Entrypoint]: Creating database employee_db
+
+2024-06-17 09:49:45+00:00 [Note] [Entrypoint]: Stopping temporary server
+2024-06-17T09:49:45.077976Z 12 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.0).
+2024-06-17T09:49:45.939844Z 0 [System] [MY-010910] [Server] /usr/sbin/mysqld: Shutdown complete (mysqld 8.4.0)  MySQL Community Server - GPL.
+2024-06-17T09:49:45.939882Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+2024-06-17 09:49:46+00:00 [Note] [Entrypoint]: Temporary server stopped
+
+2024-06-17 09:49:46+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+
+2024-06-17T09:49:46.101927Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+2024-06-17T09:49:46.279575Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 1
+2024-06-17T09:49:46.285115Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+2024-06-17T09:49:46.397769Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+2024-06-17T09:49:46.578340Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+2024-06-17T09:49:46.578370Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+2024-06-17T09:49:46.581030Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+2024-06-17T09:49:46.597986Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+2024-06-17T09:49:46.862289Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+
+
+
+
+22) check if db running or not;
+login into mysql db in docker container:
+/* 'ctrl + c'
+/*docker exec -it localhost bash
+bash-5.1#
+/*mysql -u root -p
+Enter password: root
+
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 11
+Server version: 8.4.0 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+
+23) after connection to db we can check for existing databases:
+/*show databases;
++--------------------+
+| Database           |
++--------------------+
+| employee_db        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.01 sec)
+
+
+
+
+
+
+

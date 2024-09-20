@@ -1,0 +1,7 @@
+-clean install
+-create Dockerfile in root of Project
+-FROM
+-LABEL
+-WORKDIR
+-COPY
+-ENTRYPOINT

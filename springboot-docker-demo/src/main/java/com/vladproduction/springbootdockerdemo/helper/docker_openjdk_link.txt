@@ -1,0 +1,8 @@
+how to build Docker file:
+https://docs.docker.com/reference/dockerfile/
+
+https://hub.docker.com/_/openjdk
+
+//--> copy eclipse-temurin
+
+https://hub.docker.com/_/eclipse-temurin
