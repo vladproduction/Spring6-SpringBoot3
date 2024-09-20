@@ -1,0 +1,6 @@
+@RequestMapping Annotation Examples:
+1)@RequestMapping with Class;
+2)@RequestMapping with Method;
+3)@RequestMapping with Multiple URL;
+4)@RequestMapping with HTTP Method;
+5)@RequestMapping with Produces and Consumes;
