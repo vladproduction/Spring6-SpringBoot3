@@ -1,0 +1,29 @@
+=AUTO=
+default generation type and lets the persistence provider choose the generation strategy; for Hibernate it selects
+generation strategy based on the DB dialect;
+
+=IDENTITY=
+it relies on auto-incremented DB column and let's generate a new value with each insertion; highly optimized and does
+not require additional statement; not good for JDBC batch operations;
+
+=SEQUENCE=
+generate PK values and uses DB sequence to generate unique values; it requires additional select statements to get
+next value form DB but not perform impact in most apps;
+@SequenceGenerator lets define the name of generator, the name and schema of DB sequence and allocation size of the
+sequence;
+example:
+@Id
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "product_generator"
+    )
+    @SequenceGenerator(
+            name = "product_generator",
+            sequenceName = "product_sequence_name",
+            allocationSize = 1
+    )
+
+=TABLE=
+simulates a sequence by storing and updating it`s current value in DB table which requires the use of pessimistic
+locks which put all transactions into a sequential order; it slows down app, so better prefer SEQUENCE if DB support
+sequences which most popular DB do;
