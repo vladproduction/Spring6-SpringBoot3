@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>If Unless Attribute</title>
+    <style>
+        table {
+            border: 1px solid #1313ee; /* 1px solid border around the table */
+        }
+    </style>
+</head>
+<body>
+<table th:border="1">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Power</th>
+        <th>Gender</th>
+        <th>IsAvenger</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="avenger : ${avengers}">
+        <td th:text="${avenger.name}"></td>
+        <td th:text="${avenger.power}"></td>
+        <td th:text="${avenger.gender}"></td>
+        <td th:text="${avenger.isAvenger()}"></td>
+        <td>
+            <a th:href="@{/update}" th:if="${avenger.isAvenger()} == false">Update</a>
+            <a th:href="@{/delete}" th:if="${avenger.isAvenger()} == false">Delete</a>
+            <a th:href="@{/view}" th:unless="${avenger.isAvenger()} == false">View</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

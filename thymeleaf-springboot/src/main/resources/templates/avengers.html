@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Avengers</title>
+</head>
+<body>
+<table border="2">
+    <thead>
+        <tr>
+            <th>SR. No</th>
+            <th>Index</th>
+            <th>Even</th>
+            <th>Odd</th>
+            <th>Size</th>
+            <th>First</th>
+            <th>Last</th>
+            <th>Name</th>
+            <th>Power</th>
+            <th>Gender</th>
+            <th>IsAvenger</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="avenger, avengerStat : ${avengers}">
+            <td th:text="${avengerStat.count}"></td>
+            <td th:text="${avengerStat.index}"></td>
+            <td th:text="${avengerStat.even}"></td>
+            <td th:text="${avengerStat.odd}"></td>
+            <td th:text="${avengerStat.size}"></td>
+            <td th:text="${avengerStat.first}"></td>
+            <td th:text="${avengerStat.last}"></td>
+            <td th:text="${avenger.name}"></td>
+            <td th:text="${avenger.power}"></td>
+            <td th:text="${avenger.gender}"></td>
+            <td th:text="${avenger.isAvenger()}"></td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>
+

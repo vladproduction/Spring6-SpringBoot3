@@ -1,0 +1,27 @@
+Thymeleaf uses special expressions within your templates to control what gets displayed.
+These are called Standard Expressions, and they come in a few flavors:
+
+1. Variable Expressions: ${...}
+These are the most common and use ${...} syntax.
+They simply insert the value of a variable defined in your code into the template.
+Example: Imagine a variable name set to "Alice". You can use ${name} in your template to display "Alice".
+
+2. Selection Expressions: *{...}
+These use *{...} syntax and let you navigate through objects in your code. They're like following a path to reach specific data.
+Example: You might have a product object with a name property. * {product.name} would display the product's name.
+
+3. Message Expressions: #{...}
+These use #{...} syntax and are helpful for internationalization.
+They allow you to display text based on the user's locale by referencing message keys defined elsewhere.
+Example: You could have a message key "welcome.message" with the value "Welcome!".
+#{welcome.message} would display the translated welcome message.
+
+4. Link Expressions: @{...}
+These use @{...} syntax and help you construct URLs for links in your template. They can dynamically build URLs based on variables or other data.
+Example: You might have a link to a product detail page.
+@{/products/{id}(id=${product.id})} would create a link to the product page using the product's ID.
+
+5. Fragment Expressions: ~{...}
+These use ~{...} syntax and are less common. They allow you to define reusable template fragments that you can include throughout your main template.
+
+While these are the basic types, there's more to explore within Thymeleaf expressions, like operators and conditional statements.
