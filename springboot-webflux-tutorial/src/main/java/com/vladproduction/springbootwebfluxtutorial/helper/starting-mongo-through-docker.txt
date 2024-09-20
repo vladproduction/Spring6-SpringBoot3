@@ -1,0 +1,76 @@
+1)pulling image (if not exist) and run:
+docker run --name my-mongo -d -p 27017:27017 mongo
+
+2)check if container started:
+docker ps
+for example
+<b3eb826655f5   mongo     "docker-entrypoint.s…"   6 seconds ago   Up 5
+seconds   0.0.0.0:27017->27017/tcp   my-mongo>
+
+3)execute mongodb from container:
+docker exec -it b3eb826655f5 bash
+
+4)enter to:
+root@b3eb826655f5:/# mongosh
+
+5)to show databases:
+test> show dbs
+<response>:
+admin   40.00 KiB
+config  60.00 KiB
+local   40.00 KiB
+
+6)switch to (app-mongo-db: <ems>)
+use ems
+
+7)by postman (reactive-mono-flux) make some requests: http://localhost:8080/api/employees
+[POST]
+{
+    "firstName":"Stan",
+    "lastName":"Close",
+    "email":"close@gmail.com"
+}
+
+8)in bash: 
+ems> db.employees.find();
+<response>:
+[
+  {
+    _id: ObjectId('66edb7f19773da45c71f975c'),
+    firstName: 'Stan',
+    lastName: 'Close',
+    email: 'close@gmail.com',
+    _class: 'com.vladproduction.springbootwebfluxtutorial.entity.Employee'
+  }
+]
+
+9)updating for example:
+in postman make request:
+http://localhost:8080/api/employees/66edb7f19773da45c71f975c
+[PUT]
+{
+    "firstName": "Stan-updated",
+    "lastName": "Close-updated",
+    "email": "close-updated@gmail.com"
+} 
+and response will:
+{
+    "id": "66edb7f19773da45c71f975c",
+    "firstName": "Stan-updated",
+    "lastName": "Close-updated",
+    "email": "close-updated@gmail.com"
+} 
+
+10) check it in bash:
+ems> db.employees.find();
+and <response> is updated now:
+[
+  {
+    _id: ObjectId('66edb7f19773da45c71f975c'),
+    firstName: 'Stan-updated',
+    lastName: 'Close-updated',
+    email: 'close-updated@gmail.com',
+    _class: 'com.vladproduction.springbootwebfluxtutorial.entity.Employee'
+  }
+]
+
