@@ -1,0 +1,381 @@
+How to dokerizing SpringBoot App in Docker Network
+
+-need to create network where containers will communicate:
+/* docker network create sb-mysql-net
+df76e858d58e372d73df69410b99b037994a3c9a790287bb8cccda8f84ec628f
+
+-list all networks:
+/*docker network ls
+NETWORK ID     NAME               DRIVER    SCOPE
+fbb719ff9d28   bridge             bridge    local
+15f3754ab835   host               host      local
+9da2c8d0dbf8   none               null      local
+df76e858d58e   sb-mysql-net       bridge    local
+981dd25cd3a9   sb-mysql-network   bridge    local
+
+-check for existing images:
+/*docker images
+REPOSITORY                       TAG           IMAGE ID       CREATED       SIZE
+sb-docker-demo                   0.1.RELEASE   20b2a4dea102   3 hours ago   428MB
+sb-docker-demo                   latest        20b2a4dea102   3 hours ago   428MB
+vladbogdadocker/sb-docker-demo   0.1.RELEASE   20b2a4dea102   3 hours ago   428MB
+mariadb                          latest        d08fd2bbace4   6 days ago    406MB
+mysql                            latest        fcd86ff8ce8c   6 weeks ago   578MB
+
+-run docker mysql image in docker container (in detached mode):
+/*docker run --name mysqldb --network sb-mysql-net -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=employee_db -d mysql
+7241a662beb6c0ccfa2bebb842cdabb48014af84b0b4cd5acb824a56e02869d5
+
+-check if container is running or not (list all running containers):
+/*docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                               NAMES
+7241a662beb6   mysql          "docker-entrypoint.s…"   About a minute ago   Up About a minute   3306/tcp, 33060/tcp                 mysqldb
+d19807d2ca0a   mysql:latest   "docker-entrypoint.s…"   2 hours ago          Up 2 hours          33060/tcp, 0.0.0.0:3307->3306/tcp   localhost
+
+-check logs for running container:
+/*docker logs -f 7241
+2024-06-17 11:20:44+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+...
+...
+'/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+2024-06-17T11:20:51.062590Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+
+
+-how access mysql database in a docker container:
+
+/*docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                               NAMES
+7241a662beb6   mysql          "docker-entrypoint.s…"   8 minutes ago   Up 8 minutes   3306/tcp, 33060/tcp                 mysqldb
+d19807d2ca0a   mysql:latest   "docker-entrypoint.s…"   2 hours ago     Up 2 hours     33060/tcp, 0.0.0.0:3307->3306/tcp   localhost
+
+/*docker exec -it 7241 bash
+bash-5.1#
+
+/*bash-5.1# mysql -u root -p
+Enter password: print 'root'
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 9
+Server version: 8.4.0 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 
+
+-check for existing databases:
+/*mysql>show databases;
++--------------------+
+| Database           |
++--------------------+
+| employee_db        |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+-just exit from this stage:
+mysql> /*exit
+Bye
+bash-5.1# /*exit
+exit
+
+
+-now for our App we have to create docker file to build the image:
+
+-open App Project in IDEA and make: 
+/*clean install
+ to create jar file of the Project;
+
+-in root directory we create Dockerfile:
+FROM eclipse-temurin:17
+
+LABEL mentainer="vladproduction.net@gmail.com"
+
+WORKDIR /app
+
+COPY target/springboot-restfull-webservices-0.0.1-SNAPSHOT.jar /app/springboot-restfull-webservices.jar
+
+ENTRYPOINT ["java", "-jar", "springboot-restfull-webservices.jar"] 
+
+
+
+-how to use docker command to build docker image from this Dockerfile:
+
+-first we configure profile for our App and than we build image from Dockerfile;
+-create a new application-docker.properties file in resources folder
+-check existing containers:
+/*docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                               NAMES
+7241a662beb6   mysql          "docker-entrypoint.s…"   38 minutes ago   Up 38 minutes   3306/tcp, 33060/tcp                 mysqldb    <---!!!
+d19807d2ca0a   mysql:latest   "docker-entrypoint.s…"   2 hours ago      Up 2 hours      33060/tcp, 0.0.0.0:3307->3306/tcp   localhost
+
+-provide for  (have to past instead localhost the container name 'mysqldb')
+spring.datasource.url=jdbc:mysql://mysqldb:3306/employee_db
+-as we run employee_db, we have to provide this db  (instead user_management - 'employee_db')
+spring.datasource.url=jdbc:mysql://mysqldb:3306/employee_db
+-also we provide password as a root  
+spring.datasource.password=root
+
+-after that we have to activate profile:
+in application.property file we have to provide
+ spring.profiles.active=docker
+
+-now we have to Maven build Project:
+/*clean install
+ to create jar file of the Project;
+ 
+-now we are ready to build docker image from Dockerfile
+/* return to terminal */
+cd path to project location 
+/*PS C:\Users\admin> cd C:\Users\admin\Desktop\springboot-restfull-webservices
+PS C:\Users\admin\Desktop\springboot-restfull-webservices>
+
+-build image:
+/*docker build -t springboot-restfull-webservices .
+[+] Building 1.9s (9/9) FINISHED                                                                                             docker:default
+ => [internal] load build definition from Dockerfile                                                                                   0.0s
+ => => transferring dockerfile: 305B                                                                                                   0.0s
+ => [internal] load .dockerignore                                                                                                      0.0s
+ => => transferring context: 2B                                                                                                        0.0s
+ => [internal] load metadata for docker.io/library/eclipse-temurin:17                                                                  1.3s
+ => [auth] library/eclipse-temurin:pull token for registry-1.docker.io                                                                 0.0s
+ => [1/3] FROM docker.io/library/eclipse-temurin:17@sha256:3a8a4b367562fe1dc5bb13c28dcdfd069e545c5f99747a82800fb96f99f1ba1f            0.0s
+ => => resolve docker.io/library/eclipse-temurin:17@sha256:3a8a4b367562fe1dc5bb13c28dcdfd069e545c5f99747a82800fb96f99f1ba1f            0.0s
+ => [internal] load build context                                                                                                      0.2s
+ => => transferring context: 47.68MB                                                                                                   0.2s
+ => CACHED [2/3] WORKDIR /app                                                                                                          0.0s
+ => [3/3] COPY target/springboot-restfull-webservices-0.0.1-SNAPSHOT.jar /app/springboot-restfull-webservices.jar                      0.1s
+ => exporting to image                                                                                                                 0.2s
+ => => exporting layers                                                                                                                0.1s
+ => => writing image sha256:5cd78437ebfb4d176a08f6e91fab36eeff1d0354467752d94202d023c7124f92                                           0.0s
+ => => naming to docker.io/library/springboot-restfull-webservices                                                                     0.0s
+
+What's Next?
+  View summary of image vulnerabilities and recommendations → docker scout quickview
+
+
+-check existing images:
+/*docker images
+REPOSITORY                        TAG           IMAGE ID       CREATED          SIZE
+springboot-restfull-webservices   latest        5cd78437ebfb   15 minutes ago   455MB  <---!!!
+sb-docker-demo                    0.1.RELEASE   20b2a4dea102   4 hours ago      428MB
+sb-docker-demo                    latest        20b2a4dea102   4 hours ago      428MB
+vladbogdadocker/sb-docker-demo    0.1.RELEASE   20b2a4dea102   4 hours ago      428MB
+mariadb                           latest        d08fd2bbace4   6 days ago       406MB
+mysql                             latest        fcd86ff8ce8c   6 weeks ago      578MB
+
+
+
+-now we are ready to run docker image in a docker container (image of our App created from Dockerfile) 
+-lets check for running containers:
+/*docker ps
+7241a662beb6   mysql          "docker-entrypoint.s…"   About an hour ago   Up About an hour   3306/tcp, 33060/tcp                 mysqldb
+d19807d2ca0a   mysql:latest   "docker-entrypoint.s…"   3 hours ago         Up 3 hours         33060/tcp, 0.0.0.0:3307->3306/tcp   localhost
+
+-check for existing images:
+/*docker images
+REPOSITORY                        TAG           IMAGE ID       CREATED          SIZE
+springboot-restfull-webservices   latest        5cd78437ebfb   24 minutes ago   455MB
+sb-docker-demo                    0.1.RELEASE   20b2a4dea102   4 hours ago      428MB
+sb-docker-demo                    latest        20b2a4dea102   4 hours ago      428MB
+vladbogdadocker/sb-docker-demo    0.1.RELEASE   20b2a4dea102   4 hours ago      428MB
+mariadb                           latest        d08fd2bbace4   6 days ago       406MB
+mysql                             latest        fcd86ff8ce8c   6 weeks ago      578MB
+
+-check networks:
+/*docker network ls
+NETWORK ID     NAME               DRIVER    SCOPE
+fbb719ff9d28   bridge             bridge    local
+15f3754ab835   host               host      local
+9da2c8d0dbf8   none               null      local
+df76e858d58e   sb-mysql-net       bridge    local
+981dd25cd3a9   sb-mysql-network   bridge    local
+
+
+-run image in container:
+/*docker run --network sb-mysql-net --name springboot-mysql-container -p 8080:8080 springboot-restfull-webservices
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2024-06-17T12:54:17.475Z  INFO 1 --- [springboot-restfull-webservices] [           main] SpringbootRestfullWebservicesApplication : Starting SpringbootRestfullWebservicesApplication v0.0.1-SNAPSHOT using Java 17.0.11 with PID 1 (/app/springboot-restfull-webservices.jar started by root in /app)
+...
+...
+2024-06-17T12:54:21.764Z  INFO 1 --- [springboot-restfull-webservices] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-06-17T12:54:21.794Z  INFO 1 --- [springboot-restfull-webservices] [           main] SpringbootRestfullWebservicesApplication : Started SpringbootRestfullWebservicesApplication in 4.787 seconds (process running for 5.453) 
+
+-how to run image in container in detached mode:
+-first we have to stop app:
+/*ctrl + c;
+-check for existing running container:
+/* docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS       PORTS                               NAMES
+7241a662beb6   mysql          "docker-entrypoint.s…"   4 hours ago   Up 4 hours   3306/tcp, 33060/tcp                 mysqldb  <---!!!
+d19807d2ca0a   mysql:latest   "docker-entrypoint.s…"   6 hours ago   Up 6 hours   33060/tcp, 0.0.0.0:3307->3306/tcp   localhost
+
+-now we provide command to run in detached mode:
+/*docker run --network sb-mysql-net --name springboot-mysql-container -p 8080:8080 -d springboot-restfull-webservices 
+(container is already in use...)
+docker: Error response from daemon: Conflict. The container name "/springboot-mysql-container" is already in use by container "4e41adda5bceb7b2f66fd7a4068e5131206f2761e83bfa78a406ab68d080e364". You have to remove (or rename) that container to be able to reuse that name.
+See 'docker run --help'.
+
+-we do the same command but changing container name:
+/*docker run --network sb-mysql-net --name sb-mysql-container -p 8080:8080 -d springboot-restfull-webservices
+d8db165da6572bfcde61f970facb2fe7c8deca6cc39b11cf79cb232d13c71b7c
+
+-to see logs for that container:
+/*docker logs -f d8db
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2024-06-17T15:50:34.930Z  INFO 1 --- [springboot-restfull-webservices] [           main] SpringbootRestfullWebservicesApplication : Starting SpringbootRestfullWebservicesApplication v0.0.1-SNAPSHOT using Java 17.0.11 with PID 1 (/app/springboot-restfull-webservices.jar started by root in /app)
+...
+...
+2024-06-17T15:50:38.906Z  INFO 1 --- [springboot-restfull-webservices] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2024-06-17T15:50:38.947Z  INFO 1 --- [springboot-restfull-webservices] [           main] SpringbootRestfullWebservicesApplication : Started SpringbootRestfullWebservicesApplication in 4.517 seconds (process running for 5.185)
+  (App successfully running in docker container)
+  
+-now we are good to test App REST API by using Postman client:
+
+-testing createUser endpoint:
+/*http://localhost:8080/api/users  
+[POST]: 
+{
+    "firstName":"John",
+    "lastName":"Doe",
+    "email":"doe@gmail.com"
+}
+response Status: 201 Created
+{
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "doe@gmail.com"
+}
+
+-verifing the created user in db: (go to terminal)
+/*ctrl + c to stop process:
+-access to db in container:
+/*docker exec -it mysqldb bash
+  bash-5.1#
+/*bash-5.1# mysql -u root -p 
+Enter password:'root'
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 81
+Server version: 8.4.0 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+ 
+-show databases;
+ /* mysql> show databases;
+ +--------------------+
+| Database           |
++--------------------+
+| employee_db        |    <---!!!
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+ 
+-command to use db:
+/*use employee_db; 
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+ 
+-check for existing tables in current db (list out all tables):
+/*show tables; 
++-----------------------+
+| Tables_in_employee_db |
++-----------------------+
+| users                 |
++-----------------------+
+1 row in set (0.01 sec)  
+  
+-create sql query to check created user in db by REST API we done by Postman:
+/*select * from users; 
++----+---------------+------------+-----------+
+| id | email         | first_name | last_name |
++----+---------------+------------+-----------+
+|  1 | doe@gmail.com | John       | Doe       |
++----+---------------+------------+-----------+
+1 row in set (0.00 sec)
+  
+
+-testing getUserById endpoint:   
+/*http://localhost:8080/api/users/1
+[GET]
+response Status: 200 Ok
+{
+    "id": 1,
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "doe@gmail.com"
+}
+
+-testing updateUserById endpoint:   
+/*http://localhost:8080/api/users/1
+[PUT]:
+{
+    "firstName":"Tony",
+    "lastName":"Stark",
+    "email":"stark@gmail.com"
+}
+response Status: 200 Ok
+{
+    "id": 1,
+    "firstName": "Tony",
+    "lastName": "Stark",
+    "email": "stark@gmail.com"
+}
+
+-testing getAllUsers endpoint:   
+/*http://localhost:8080/api/users
+[GET]:
+response Status: 200 Ok
+[
+    {
+        "id": 1,
+        "firstName": "Tony",
+        "lastName": "Stark",
+        "email": "stark@gmail.com"
+    }
+]
+
+-testing deleteUserById endpoint:   
+/*http://localhost:8080/api/users/1
+[DELETE]:
+response Status: 200 Ok
+User successfully deleted
+
+-verifing in db:
+/*select * from users;
+Empty set (0.00 sec)
+

@@ -1,0 +1,328 @@
+We are going compose two services by using yml file:
+1)SpringBoot App service;
+2)MySql service;
+ -both in containers and as well as has own images;
+
+-in IDEA using Project(springboot-restfull-services)
+-in root of the project create yml file: docker-compose.yml
+/*in that file we configure app services:
+version: "3.8"
+
+services:
+  mysqldb:
+    container_name: mysqldb
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: employee_db
+    networks:
+      sb-mysql-net:
+
+networks:
+  sb-mysql-net:
+
+-start Docker Desktop;
+
+-in terminal:
+/*docker images
+REPOSITORY                        TAG           IMAGE ID       CREATED        SIZE
+springboot-restfull-webservices   latest        5cd78437ebfb   22 hours ago   455MB
+sb-docker-demo                    0.1.RELEASE   20b2a4dea102   26 hours ago   428MB
+sb-docker-demo                    latest        20b2a4dea102   26 hours ago   428MB
+vladbogdadocker/sb-docker-demo    0.1.RELEASE   20b2a4dea102   26 hours ago   428MB
+mariadb                           latest        d08fd2bbace4   7 days ago     406MB
+mysql                             latest        fcd86ff8ce8c   6 weeks ago    578MB
+
+-remove all images:
+/*docker rmi 5cd78437ebfb
+Error response from daemon: conflict: unable to delete 5cd78437ebfb (must be forced) - image is being used by stopped container d8db165da657
+
+/*docker rmi -f 5cd78437ebfb
+Untagged: springboot-restfull-webservices:latest
+Deleted: sha256:5cd78437ebfb4d176a08f6e91fab36eeff1d0354467752d94202d023c7124f92
+
+/*docker rmi -f 20b2a4dea102
+Untagged: sb-docker-demo:0.1.RELEASE
+Untagged: sb-docker-demo:latest
+Untagged: vladbogdadocker/sb-docker-demo:0.1.RELEASE
+Untagged: vladbogdadocker/sb-docker-demo@sha256:e8778725a2f816368b9e9424aeed167252353f78f4a227e1f845da9e7be5ff83
+Deleted: sha256:20b2a4dea102558775212d36a7c50e0ae11fea31ef3c30f7d9e9c66a5e0b4954
+
+/*docker rmi -f d08fd2bbace4
+Untagged: mariadb:latest
+Untagged: mariadb@sha256:396146c0a2e703ddebcf51f26abb28bf5590991d1d830c35c1d802034d140352
+Deleted: sha256:d08fd2bbace4fd8221c9eb276e484946c5a95ced0cdac29ce31534934aa72044
+Deleted: sha256:9bc25a6f6c728535178245c689f0a798aa45887a46a60db708e710ca855b8467
+Deleted: sha256:d151c9eb2342b580b8a4919ec610ecceafc720089bf9538ef4ec1d20c0d60f4f
+Deleted: sha256:b047e1ac4e8e78768142db3d4fee31c2175a2b788637ca46fd6b691d73762558
+Deleted: sha256:da511fd4cfad23f5c4a7874ae1ddcb9d7da17d7b23a036b82eb9d37120e160e8
+Deleted: sha256:b63d94b762dd3ec858d7b6471103d573fd329d8330f6fefecc489a5f46a7e124
+Deleted: sha256:e0d0deb8ac3db08b2856b52c3e8d1d23f1ca1e911adaaf2eb06a3d25fcb58343
+Deleted: sha256:373bba955ba10459fb80f23f7b9438222fbf5507e01fc6458504c92fea91e9ca
+Deleted: sha256:42d3f8788282c6e48bac7236609753b240db353465dc55cb77c21f2391720dd9
+
+/*docker rmi -f fcd86ff8ce8c
+Untagged: mysql:latest
+Untagged: mysql@sha256:aa021e164da6aacbefc59ed0b933427e4835636be380f3b6523f4a6c9564e1f0
+Deleted: sha256:fcd86ff8ce8c2d30f02607e184cbfd73eb581e22a451e4a1847a102318bc2926
+
+-confirm that all images were deleted:
+/*docker images
+REPOSITORY   TAG       IMAGE ID   CREATED   SIZE
+(no images)
+
+-we have to be in a project root:
+/*cd 'project location path'
+
+-print commant for pull docker-compose yml file and deploy it image in docker container
+/*docker-compose up
+[+] Running 11/11
+ ✔ mysqldb 10 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                   3.4s
+   ✔ 07bc88e18c4a Already exists                                                                                           0.0s
+   ✔ 1a9c1668bf49 Already exists                                                                                           0.0s
+   ✔ 1021dda8eecf Already exists                                                                                           0.0s
+   ✔ fb61b56acac1 Already exists                                                                                           0.0s
+   ✔ 0bca83908a5b Already exists                                                                                           0.0s
+   ✔ 165e8b3d37ca Already exists                                                                                           0.0s
+   ✔ 3e1b086f1295 Already exists                                                                                           0.0s
+   ✔ dba651668484 Already exists                                                                                           0.0s
+   ✔ ed90f5355e12 Already exists                                                                                           0.0s
+   ✔ 0412f59ab2b5 Already exists                                                                                           0.0s
+[+] Running 1/2
+ ✔ Network springboot-restfull-webservices_sb-mysql-net  Created                                                           0.1s
+ - Container mysqldb                                     Creating                                                          0.0s
+Error response from daemon: Conflict. The container name "/mysqldb" is already in use by container "7241a662beb6c0ccfa2bebb842cdabb48014af84b0b4cd5acb824a56e02869d5". You have to remove (or rename) that container to be able to reuse that name.
+
+-(to resolve this error) remove that cntainer and run command again:
+/*docker-compose up
+ ✔ mysqldb 10 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                                                                                                 24.4s
+   ✔ 07bc88e18c4a Pull complete                                                                                                                                                                                                                                          15.6s
+   ✔ 1a9c1668bf49 Pull complete                                                                                                                                                                                                                                          15.6s
+   ✔ 1021dda8eecf Pull complete                                                                                                                                                                                                                                          15.7s
+   ✔ fb61b56acac1 Pull complete                                                                                                                                                                                                                                          15.9s
+   ✔ 0bca83908a5b Pull complete                                                                                                                                                                                                                                          15.9s
+   ✔ 165e8b3d37ca Pull complete                                                                                                                                                                                                                                          15.9s
+   ✔ 3e1b086f1295 Pull complete                                                                                                                                                                                                                                          16.8s
+   ✔ dba651668484 Pull complete                                                                                                                                                                                                                                          16.8s
+   ✔ ed90f5355e12 Pull complete                                                                                                                                                                                                                                          21.9s
+   ✔ 0412f59ab2b5 Pull complete                                                                                                                                                                                                                                          21.9s
+[+] Running 1/1
+ ✔ Container mysqldb  Created                                                                                                                                                                                                                                             0.6s
+Attaching to mysqldb
+mysqldb  | 2024-06-18 10:48:15+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+mysqldb  | 2024-06-18 10:48:15+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+mysqldb  | 2024-06-18 10:48:15+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+mysqldb  | 2024-06-18 10:48:15+00:00 [Note] [Entrypoint]: Initializing database files
+mysqldb  | 2024-06-18T10:48:15.882842Z 0 [System] [MY-015017] [Server] MySQL Server Initialization - start.
+mysqldb  | 2024-06-18T10:48:15.883681Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.4.0) initializing of server in progress as process 80
+mysqldb  | 2024-06-18T10:48:15.888085Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysqldb  | 2024-06-18T10:48:16.018732Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysqldb  | 2024-06-18T10:48:16.993727Z 6 [Warning] [MY-010453] [Server] root@localhost is created with an empty password ! Please consider switching off the --initialize-insecure option.
+mysqldb  | 2024-06-18T10:48:18.716280Z 0 [System] [MY-015018] [Server] MySQL Server Initialization - end.
+mysqldb  | 2024-06-18 10:48:18+00:00 [Note] [Entrypoint]: Database files initialized
+mysqldb  | 2024-06-18 10:48:18+00:00 [Note] [Entrypoint]: Starting temporary server
+mysqldb  | 2024-06-18T10:48:18.820779Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+mysqldb  | 2024-06-18T10:48:18.997562Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 125
+mysqldb  | 2024-06-18T10:48:19.008450Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysqldb  | 2024-06-18T10:48:19.143596Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysqldb  | 2024-06-18T10:48:19.360340Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+mysqldb  | 2024-06-18T10:48:19.360376Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysqldb  | 2024-06-18T10:48:19.363270Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb  | 2024-06-18T10:48:19.380134Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 0  MySQL Community Server - GPL.
+mysqldb  | 2024-06-18 10:48:19+00:00 [Note] [Entrypoint]: Temporary server started.
+mysqldb  | '/var/lib/mysql/mysql.sock' -> '/var/run/mysqld/mysqld.sock'
+mysqldb  | 2024-06-18T10:48:19.633024Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Socket: /var/run/mysqld/mysqlx.sock
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/iso3166.tab' as time zone. Skipping it.
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/leap-seconds.list' as time zone. Skipping it.
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/leapseconds' as time zone. Skipping it.
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/tzdata.zi' as time zone. Skipping it.
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/zone.tab' as time zone. Skipping it.
+mysqldb  | Warning: Unable to load '/usr/share/zoneinfo/zone1970.tab' as time zone. Skipping it.
+mysqldb  | 2024-06-18 10:48:20+00:00 [Note] [Entrypoint]: Creating database employee_db
+mysqldb  |
+mysqldb  |
+mysqldb  | 2024-06-18 10:48:20+00:00 [Note] [Entrypoint]: Stopping temporary server
+mysqldb  | 2024-06-18T10:48:20.982938Z 12 [System] [MY-013172] [Server] Received SHUTDOWN from user root. Shutting down mysqld (Version: 8.4.0).
+mysqldb  | 2024-06-18T10:48:21.759341Z 0 [System] [MY-010910] [Server] /usr/sbin/mysqld: Shutdown complete (mysqld 8.4.0)  MySQL Community Server - GPL.
+mysqldb  | 2024-06-18T10:48:21.759396Z 0 [System] [MY-015016] [Server] MySQL Server - end.
+mysqldb  | 2024-06-18 10:48:21+00:00 [Note] [Entrypoint]: Temporary server stopped
+mysqldb  |
+mysqldb  |
+mysqldb  | 2024-06-18 10:48:21+00:00 [Note] [Entrypoint]: MySQL init process done. Ready for start up.
+mysqldb  |
+mysqldb  |
+mysqldb  | 2024-06-18T10:48:22.013317Z 0 [System] [MY-015015] [Server] MySQL Server - start.
+mysqldb  | 2024-06-18T10:48:22.190622Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.4.0) starting as process 1
+mysqldb  | 2024-06-18T10:48:22.195657Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.
+mysqldb  | 2024-06-18T10:48:22.304644Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.
+mysqldb  | 2024-06-18T10:48:22.503623Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+mysqldb  | 2024-06-18T10:48:22.503658Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.
+mysqldb  | 2024-06-18T10:48:22.507425Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+mysqldb  | 2024-06-18T10:48:22.531280Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+mysqldb  | 2024-06-18T10:48:22.794527Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+
+-to stop mysqldb container:
+/*ctrl + c 
+[+] Stopping 1/1ing... (press Ctrl+C again to force)
+ ✔ Container mysqldb  Stopped                                                                                                                                                                                                                                             1.7s
+canceled
+
+-now we running all container in a background:
+/*docker-compose up -d
+ ✔ Container mysqldb  Started
+(it means that mysqldb is successfully deployed and started in container) 
+
+-if we want to see logs, we print command with container name (mysqldb):
+/*docker logs -f mysqldb
+2024-06-18 10:48:15+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.0-1.el9 started.
+...
+...
+2024-06-18T10:54:39.081142Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.4.0'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+2024-06-18T10:54:39.345595Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: '::' port: 33060, socket: /var/run/mysqld/mysqlx.sock
+
+-exit the process but not stop container:
+/*ctrl + c
+
+-to stop all containers running in background:
+/*docker-compose down
+ ✔ Container mysqldb                                     Removed                                                                                                                                                                                                          1.4s
+ ✔ Network springboot-restfull-webservices_sb-mysql-net  Removed
+ 
+
+///////////////////Configuring and Running SpringBoot in a Container using Docker Compose//////////////////////////////////////////////////////
+
+-in IDEA we add docker-compose.yml with some more configurations (new version is presented)
+
+version: "3.8"
+
+services:
+  mysqldb:
+    container_name: mysqldb
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: employee_db
+    networks:
+      sb-mysql-net:
+
+  springboot-restfull-webservices:
+    container_name: springboot-restfull-webservices
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8080"
+    networks:
+      sb-mysql-net:
+    restart: on-failure
+
+networks:
+  sb-mysql-net:
+  
+
+-now go the terminal and up the container by docker-compose.yml from our app:
+
+-check for running containers first:
+/*docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+-command to up docker container as compose in detached mode:
+(we have to be in a root of project)
+/*docker-compose up -d --build 
+[+] Building 1.4s (9/9) FINISHED                                                                                                                                                                                                                                docker:default
+ => [springboot-restfull-webservices internal] load .dockerignore                                                                                                                                                                                                         0.0s
+ => => transferring context: 2B                                                                                                                                                                                                                                           0.0s
+ => [springboot-restfull-webservices internal] load build definition from Dockerfile                                                                                                                                                                                      0.0s
+ => => transferring dockerfile: 305B                                                                                                                                                                                                                                      0.0s
+ => [springboot-restfull-webservices internal] load metadata for docker.io/library/eclipse-temurin:17                                                                                                                                                                     1.3s
+ => [springboot-restfull-webservices auth] library/eclipse-temurin:pull token for registry-1.docker.io                                                                                                                                                                    0.0s
+ => [springboot-restfull-webservices 1/3] FROM docker.io/library/eclipse-temurin:17@sha256:3a8a4b367562fe1dc5bb13c28dcdfd069e545c5f99747a82800fb96f99f1ba1f                                                                                                               0.0s
+ => => resolve docker.io/library/eclipse-temurin:17@sha256:3a8a4b367562fe1dc5bb13c28dcdfd069e545c5f99747a82800fb96f99f1ba1f                                                                                                                                               0.0s
+ => [springboot-restfull-webservices internal] load build context                                                                                                                                                                                                         0.0s
+ => => transferring context: 107B                                                                                                                                                                                                                                         0.0s
+ => CACHED [springboot-restfull-webservices 2/3] WORKDIR /app                                                                                                                                                                                                             0.0s
+ => CACHED [springboot-restfull-webservices 3/3] COPY target/springboot-restfull-webservices-0.0.1-SNAPSHOT.jar /app/springboot-restfull-webservices.jar                                                                                                                  0.0s
+ => [springboot-restfull-webservices] exporting to image                                                                                                                                                                                                                  0.0s
+ => => exporting layers                                                                                                                                                                                                                                                   0.0s
+ => => writing image sha256:ecd991ef010dcd684ee25d43c5579892415e014128b5cbc36003354d6ee45dcf                                                                                                                                                                              0.0s
+ => => naming to docker.io/library/springboot-restfull-webservices-springboot-restfull-webservices                                                                                                                                                                        0.0s
+[+] Running 3/3
+ ✔ Network springboot-restfull-webservices_sb-mysql-net  Created                                                                                                                                                                                                          0.0s
+ ✔ Container springboot-restfull-webservices             Started                                                                                                                                                                                                          0.6s
+ ✔ Container mysqldb                                     Started
+
+
+-to check if containers were created are running or not:
+/*docker ps 
+f92ca2ee7469   mysql                                        "docker-entrypoint.s…"   6 minutes ago   Up 6 minutes   3306/tcp, 33060/tcp      mysqldb
+e7d40aa92fb2   springboot-restfull-webservices-springboot-restfull-webservices   "java -jar springboo…"   6 minutes ago   Up 5 minutes   0.0.0.0:8084->8080/tcp   springboot-restfull-webservices
+
+-we can ckeck logs for each container as well:
+/*docker logs -f springboot-restfull-webservices
+(it has some exceptions, but after app started)
+
+
+-so we can test our App with some REST API endpoints using Postman client:
+[POST]: create user
+http://localhost:8084/api/users
+{
+    "firstName":"Tony",
+    "lastName":"Stark",
+    "email":"stark@gmail.com"
+}
+response status: 201 CREATED
+{
+    "id": 1,
+    "firstName": "Tony",
+    "lastName": "Stark",
+    "email": "stark@gmail.com"
+}
+
+[GET]: findBy ID
+http://localhost:8084/api/users/1
+response status: 200 OK
+{
+    "id": 1,
+    "firstName": "Tony",
+    "lastName": "Stark",
+    "email": "stark@gmail.com"
+}
+
+[GET]: find All
+http://localhost:8084/api/users
+response status: 200 OK
+[
+    {
+        "id": 1,
+        "firstName": "Tony",
+        "lastName": "Stark",
+        "email": "stark@gmail.com"
+    }
+]
+
+[PUT]: update user
+http://localhost:8084/api/users/1
+{
+    "firstName":"Tony-updated",
+    "lastName":"Stark-updated",
+    "email":"stark-updated@gmail.com"
+}
+response status: 200 OK
+{
+    "id": 1,
+    "firstName": "Tony-updated",
+    "lastName": "Stark-updated",
+    "email": "stark-updated@gmail.com"
+}
+
+[DELETE]: delete by ID
+http://localhost:8084/api/users/1
+User successfully deleted
+
+[GET]: find All
+http://localhost:8084/api/users
+response status: 200 OK
+[]
+
+
+
